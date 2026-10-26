@@ -116,7 +116,9 @@ if Path(".gitmodules").exists():
     for sm in submodule_config:
         if 'url' in submodule_config[sm]:
             matches = repo_regex.search(submodule_config[sm].get('url'))
-            print("proto: "+matches['proto']+
-                  "host: "+matches['host']+
-                  " owner: "+matches['owner']+
-                  " repo: "+matches['repo'])
+            # to create a hashable type we make a list of host/owner/repo
+            host = matches['host']
+            owner = matches['owner']
+            repo = matches['repo']
+            current_submodules[(host, owner, repo)] = submodule_config['path']
+    print("Current submodules: ", current_submodules)
