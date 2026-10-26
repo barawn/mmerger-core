@@ -120,5 +120,5 @@ if Path(".gitmodules").exists():
             host = matches['host']
             owner = matches['owner']
             repo = matches['repo']
-            current_submodules[(host, owner, repo)] = submodule_config['path']
+            current_submodules[(host, owner, repo)] = submodule_config[sm].get('path')
     print("Current submodules: ", current_submodules)
