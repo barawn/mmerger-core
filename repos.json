@@ -1,0 +1,22 @@
+{
+     "VERILOGLIB": {
+          "url": "https://github.com/barawn/verilog-library-barawn",
+          "default": "verilog-library-barawn"
+     },
+     "DNPCIEAURORA": {
+          "url": "https://github.com/helix-osu-firmware/dnpcie_aurora_v2",
+          "default": "dnpcie_aurora_v2"
+     },
+     "VERILOGAXIS": {
+          "url": "https://github.com/helix-osu-firmware/verilog-axis",
+          "default": "verilog-axis"
+     },
+     "THIS": {
+
+     },
+     "VIVADOCUSTOMIP": {
+         "url": "https://github.com/barawn/vivado_custom_ip",
+	 "default" : "vivado_custom_ip",
+	 "repository" : true
+     }
+}
