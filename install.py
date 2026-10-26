@@ -100,8 +100,10 @@ for k in d:
 parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
                     help='show this help message and exit')
 # And the prefix argument
-parser.add_argument("-p", "--prefix", help="Prefix to append to all repository paths")
+parser.add_argument("-p", "--prefix", help="Prefix to append to all defaults")
 args = parser.parse_args()
+
+print(args)
 
 # This is our submodule matcher. We always fetch https submodules,
 # but we'll match against SSH ones so we need to regex extract
@@ -126,8 +128,7 @@ if Path(".gitmodules").exists():
             repo = matches['repo']
             current_submodules[(host, owner, repo)] = submodule_config[sm].get('path')
 
-print("Current submodules: ", current_submodules)
-
+print("Checking submodule dependencies:")
 needed_submodules = {}
 for k in d:
     if k != this_repo:
@@ -137,10 +138,10 @@ for k in d:
         repo = matches['repo']
         needed_submodules[(host, owner, repo)] = d[k]['default']
 
-print("Needed submodules: ", needed_submodules)
 for sm in needed_submodules:
     if sm in current_submodules:
         needed_submodules[sm] = current_submodules[sm]
         print("Matched existing submodule ",sm," at ",needed_submodules[sm])
     else:
         print("Need to fetch submodule ",sm)
+
