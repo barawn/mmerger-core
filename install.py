@@ -111,9 +111,9 @@ if Path(".gitmodules").exists():
     # To match to SSH URLs when searching, we need to regex extract
     # the host/owner/repo tags to compare.
     repo_regex = re.compile("(?P<host>(git@|https://)([\\w\\.@]{1,})(/|:))(?P<owner>[\\w,\\-,_]{1,})/(?P<repo>[\\w,\\-,_]{1,})(.git){0,1}((/){0,1})")
-    config.optionxform = str
-    config.read(".gitmodules")
-    for sm in config:
-        if 'url' in config[sm]:
-            matchArray = repo_regex.findall(config[sm].get('url'))
+    submodule_config.optionxform = str
+    submodule_config.read(".gitmodules")
+    for sm in submodule_config:
+        if 'url' in submodule_config[sm]:
+            matchArray = repo_regex.findall(submodule_config[sm].get('url'))
             print(matchArray)
