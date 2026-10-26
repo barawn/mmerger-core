@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 import argparse
 import configparser
-
+import re
 # This is a quick and dirty install script for
 # a Verilog submodule in a Git managed repo. It looks for:
 # - sources.txt
@@ -103,3 +103,17 @@ parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
 parser.add_argument("-p", "--prefix", help="Prefix to append to all repository paths")
 args = parser.parse_args()
 
+# First start by building a list of the existing submodules.
+current_submodules = {}
+if Path(".gitmodules").exists():
+    submodule_config = configparser.ConfigParser()
+    # URLs in our submodule list are all https URLs.
+    # To match to SSH URLs when searching, we need to regex extract
+    # the host/owner/repo tags to compare.
+    repo_regex = re.compile("(?P<host>(git@|https://)([\\w\\.@]{1,})(/|:))(?P<owner>[\\w,\\-,_]{1,})/(?P<repo>[\\w,\\-,_]{1,})(.git){0,1}((/){0,1})")
+    config.optionxform = str
+    config.read(".gitmodules")
+    for sm in config:
+        if 'url' in config[sm]:
+            matchArray = repo_regex.findall(config[sm].get('url'))
+            print(matchArray)
