@@ -141,6 +141,6 @@ print("Needed submodules: ", needed_submodules)
 for sm in needed_submodules:
     if sm in current_submodules:
         needed_submodules[sm] = current_submodules[sm]
-        print("Matched existing submodule "+sm+" at "+needed_submodules[sm])
+        print("Matched existing submodule ",sm," at ",needed_submodules[sm])
     else:
-        print("Need to fetch submodule "+sm)
+        print("Need to fetch submodule ",sm)
