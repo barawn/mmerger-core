@@ -103,6 +103,11 @@ parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
 parser.add_argument("-p", "--prefix", help="Prefix to append to all repository paths")
 args = parser.parse_args()
 
+# This is our submodule matcher. We always fetch https submodules,
+# but we'll match against SSH ones so we need to regex extract
+# host/owner/repo tags to compare.
+repo_regex = re.compile("(?P<proto>git@|https://)(?P<host>[\w\.@]+)(/|:)(?P<owner>[\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})")
+
 # First start by building a list of the existing submodules.
 current_submodules = {}
 if Path(".gitmodules").exists():
@@ -110,7 +115,6 @@ if Path(".gitmodules").exists():
     # URLs in our submodule list are all https URLs.
     # To match to SSH URLs when searching, we need to regex extract
     # the host/owner/repo tags to compare.
-    repo_regex = re.compile("(?P<proto>git@|https://)(?P<host>[\w\.@]+)(/|:)(?P<owner>[\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})")
     submodule_config.optionxform = str
     submodule_config.read(".gitmodules")
     for sm in submodule_config:
@@ -121,4 +125,22 @@ if Path(".gitmodules").exists():
             owner = matches['owner']
             repo = matches['repo']
             current_submodules[(host, owner, repo)] = submodule_config[sm].get('path')
-    print("Current submodules: ", current_submodules)
+
+print("Current submodules: ", current_submodules)
+
+needed_submodules = {}
+for k in d:
+    if k != this_repo:
+        matches = repo_regex.search(d[k]['url'])
+        host = matches['host']
+        owner = matches['owner']
+        repo = matches['repo']
+        needed_submodules[(host, owner, repo)] = d[k]['default']
+
+print("Needed submodules: ", needed_submodules)
+for sm in needed_submodules:
+    if sm in current_submodules:
+        needed_submodules[sm] = current_submodules[sm]
+        print("Matched existing submodule "+sm+" at "+needed_submodules[sm])
+    else:
+        print("Need to fetch submodule "+sm)
