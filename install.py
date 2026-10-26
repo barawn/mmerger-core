@@ -110,12 +110,13 @@ if Path(".gitmodules").exists():
     # URLs in our submodule list are all https URLs.
     # To match to SSH URLs when searching, we need to regex extract
     # the host/owner/repo tags to compare.
-    repo_regex = re.compile("(?P<host>(git@|https://)([\\w\\.@]{1,})(/|:))(?P<owner>[\\w,\\-,_]{1,})/(?P<repo>[\\w,\\-,_]{1,})(.git){0,1}((/){0,1})")
+    repo_regex = re.compile("(?P<proto>git@|https://)(?P<host>[\w\.@]+)(/|:)(?P<owner>[\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})")
     submodule_config.optionxform = str
     submodule_config.read(".gitmodules")
     for sm in submodule_config:
         if 'url' in submodule_config[sm]:
             matches = repo_regex.search(submodule_config[sm].get('url'))
-            print("host: "+matches['host']+
+            print("proto: "+matches['proto']+
+                  "host: "+matches['host']+
                   " owner: "+matches['owner']+
                   " repo: "+matches['repo'])
