@@ -115,5 +115,7 @@ if Path(".gitmodules").exists():
     submodule_config.read(".gitmodules")
     for sm in submodule_config:
         if 'url' in submodule_config[sm]:
-            matchArray = repo_regex.findall(submodule_config[sm].get('url'))
-            print(matchArray)
+            matches = repo_regex.search(submodule_config[sm].get('url'))
+            print("host: "+matches['host']+
+                  " owner: "+matches['owner']+
+                  " repo: "+matches['repo'])
