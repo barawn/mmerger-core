@@ -215,17 +215,17 @@ for k in d:
         else:
             ip_repos.append(k)
 
-sourcefiles = []
-print("==== Matching sources.txt ====")
+def match_files(newf, oldf, templ):
+    entries = []
+    print("==== Matching %s entries in %s ====" % (newf, oldf))
+    with open(newf, "r") as f:
+        src = Template(f.read())
+        entries = src.substitute(templ).splitlines()
+    to_append = []
+    with open(oldf, "r") as f:
+        cursrcs = set(f.read().splitlines())
+        to_append = [item for item in entries if item not in cursrcs]
+    print("==== Need to add %d/%d entries into %s" % (len(to_append), len(entries), oldf))
+    return to_append
 
-with open(sourcepath, "r") as f:
-    src = Template(f.read())
-    sourcefiles = src.substitute(templ_dict).splitlines()
-
-to_append = []
-
-with open(cursourcepath, "r") as f:
-    cursrcs = set(f.read().splitlines())
-    to_append = [item for item in sourcefiles if item not in cursrcs]
-
-print("==== Need to add %d/%d sources file entries into sources.txt" % (len(to_append), len(sourcefiles)))
+src_append = match_files(sourcepath, cursourcepath, templ_dict)
