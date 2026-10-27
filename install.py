@@ -4,6 +4,7 @@ import argparse
 import configparser
 import re
 import subprocess
+from string import Template
 
 # This is a quick and dirty install script for
 # a Verilog submodule in a Git managed repo. It looks for:
@@ -45,10 +46,16 @@ import subprocess
 #
 # You can add a prefix to all locations with the --prefix option.
 
+
+# Match up submodules from repos.json to the
+# ones in the gitmodules file if possible and if found,
+# update the dictionary with their path.
+#
+# We always fetch https submodules, but we'll match against
+# SSH ones so we need to regex extract host/owner/repo tags to compare.
+# We don't bother with requiring like, a specific tag or something.
+# Whatever. Keep forward compatibility.
 def submodule_match( sm_this, sm_dict ):
-    # This is our submodule matcher. We always fetch https submodules,
-    # but we'll match against SSH ones so we need to regex extract
-    # host/owner/repo tags to compare.
     repo_regex = re.compile("(?P<proto>git@|https://)(?P<host>[\w\.@]+)(/|:)(?P<owner>[\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})")
 
     # First start by building a list of the existing submodules.
@@ -183,8 +190,10 @@ def template_quote(s):
 
 ip_repos = []
 
+templ_dict = {}
 for k in d:
     if k == this_repo:
+        templ_dict[k] = this_dir
         print("==== ",
               template_quote(this_repo),
               "=",
@@ -192,9 +201,15 @@ for k in d:
     else:
         is_repo = d[k]['repository'] if 'repository' in d[k] else False
         if not is_repo:
+            templ_dict[k] = d[k]['default']
             print("==== ",
                   template_quote(k),
                   "=",
                   d[k]['default'])
         else:
             ip_repos.append(k)
+
+with open(sourcepath, "r") as f:
+    src = Template(f.read())
+    result = src.substitute(templ_dict)
+    print(result)
