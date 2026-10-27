@@ -200,16 +200,14 @@ templ_dict = {}
 for k in d:
     if k == this_repo:
         templ_dict[k] = this_dir
-        print("==== ",
-              template_quote(this_repo),
+        print(template_quote(this_repo),
               "=",
               this_dir)
     else:
         is_repo = d[k]['repository'] if 'repository' in d[k] else False
         if not is_repo:
             templ_dict[k] = d[k]['default']
-            print("==== ",
-                  template_quote(k),
+            print(template_quote(k),
                   "=",
                   d[k]['default'])
         else:
