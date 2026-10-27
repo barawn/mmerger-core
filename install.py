@@ -71,6 +71,7 @@ def submodule_match( sm_this, sm_dict ):
 
     print("Checking submodule dependencies:")
     sm_dep = {}
+    key_map = {}
     for k in sm_dict:
         if k != sm_this:
             matches = repo_regex.search(sm_dict[k]['url'])
@@ -78,12 +79,17 @@ def submodule_match( sm_this, sm_dict ):
             owner = matches['owner']
             repo = matches['repo']
             sm_dep[(host, owner, repo)] = sm_dict[k]['default']
+            key_map[(host, owner, repo)] = k
 
     missing_sm = {}
     for sm in sm_dep:
         if sm in current_submodules:
             sm_dep[sm] = current_submodules[sm]
             print("Matched existing submodule ",sm," at ", sm_dep[sm])
+            # Now replace the path in the sm_dict as well.
+            # Above we create a triplet-to-path mapping for Git
+            # submodule install. This updates it for the template replace.
+            sm_dict[key_map[sm]]['default'] = sm_dep[sm]
         else:
             print("Need to fetch submodule ",sm)
             missing_sm[sm] = sm_dep[sm]
@@ -177,13 +183,12 @@ def template_quote(s):
 
 ip_repos = []
 
-for k in d:
-    if k == this_repo:
-        print("==== ",
-              template_quote(this_repo),
-              "=",
-              this_dir)
-    else:
+print("==== ",
+      template_quote(this_repo),
+      "=",
+      this_dir)
+for 
+else:
         is_repo = d[k]['repository'] if 'repository' in d[k] else False
         if not is_repo:
             print("==== ",
