@@ -129,6 +129,12 @@ if not repopath.exists():
     print("No repos.json file found in '"+this_dir+"'!")
     exit(1)
 
+cursourcepath = Path("sources.txt")
+if not cursourcepath.exists():
+    print("No sources.txt found in current directory!")
+    print("Need to be in the top directory of a Git managed repository.")
+    exit(1)
+    
 with open(repopath) as repos_json:
     d = json.load(repos_json)
 
@@ -209,7 +215,17 @@ for k in d:
         else:
             ip_repos.append(k)
 
+sourcefiles = []
+print("==== Matching sources.txt ====")
+
 with open(sourcepath, "r") as f:
     src = Template(f.read())
-    result = src.substitute(templ_dict)
-    print(result)
+    sourcefiles = src.substitute(templ_dict).splitlines()
+
+to_append = []
+
+with open(cursourcepath, "r") as f:
+    cursrcs = set(f.readlines())
+    to_append = [item for item in sourcefiles if item not in cursrcs]
+
+print("==== Matched %d/%d source files in sources.txt" % (len(to_append), len(sourcefiles)))
