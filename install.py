@@ -3,6 +3,8 @@ import json
 import argparse
 import configparser
 import re
+import subprocess
+
 # This is a quick and dirty install script for
 # a Verilog submodule in a Git managed repo. It looks for:
 # - sources.txt
