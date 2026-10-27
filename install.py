@@ -156,8 +156,7 @@ dargs = vars(args)
 for k in d:
     if k != this_repo:
         default_path = Path(pfx)/Path(d[k]['default'])
-        if dargs[k]:
-            d[k]['default'] = dargs[k]
+        d[k]['default'] = dargs[k] if dargs[k] else default_path
 
 sm_dep, missing_sm = submodule_match(this_repo, d)
 
