@@ -183,12 +183,13 @@ def template_quote(s):
 
 ip_repos = []
 
-print("==== ",
-      template_quote(this_repo),
-      "=",
-      this_dir)
-for 
-else:
+for k in d:
+    if k == this_repo:
+        print("==== ",
+              template_quote(this_repo),
+              "=",
+              this_dir)
+    else:
         is_repo = d[k]['repository'] if 'repository' in d[k] else False
         if not is_repo:
             print("==== ",
