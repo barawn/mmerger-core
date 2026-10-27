@@ -226,6 +226,7 @@ to_append = []
 
 with open(cursourcepath, "r") as f:
     cursrcs = set(f.readlines())
+    print(cursrcs)
     for item in sourcefiles:
         if item not in cursrcs:
             print("==== %s not found in current sources.txt" % item)
