@@ -148,14 +148,14 @@ parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
 # And the prefix argument
 parser.add_argument("-p", "--prefix", help="Prefix to append to all defaults")
 args = parser.parse_args()
-pfx = '' if not args['prefix'] else args['prefix']
+pfx = '' if not args.prefix else args.prefix
 
 # Build the paths for the submodules
 for k in d:
     if k != this_repo:
         default_path = Path(pfx)/Path(d[k]['default'])
         if args[k]:
-            d[k]['default'] = args[k]
+            d[k]['default'] = vars(args)[k]
 
 sm_dep, missing_sm = submodule_match(this_repo, d)
 
