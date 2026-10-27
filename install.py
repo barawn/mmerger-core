@@ -151,11 +151,12 @@ args = parser.parse_args()
 pfx = '' if not args.prefix else args.prefix
 
 # Build the paths for the submodules
+dargs = vars(args)
 for k in d:
     if k != this_repo:
         default_path = Path(pfx)/Path(d[k]['default'])
-        if args[k]:
-            d[k]['default'] = vars(args)[k]
+        if dargs[k]:
+            d[k]['default'] = dargs[k]
 
 sm_dep, missing_sm = submodule_match(this_repo, d)
 
