@@ -103,17 +103,17 @@ args, unknown = parser.parse_known_args()
 # find what options are in the JSON file. At the very least
 # we need a sources.txt and a repos.json.
 
-dir = Path(args.directory)
-if not dir.exists():
-    print("Submodule path '" + dir + "' does not exist!")
+this_dir = Path(args.directory)
+if not this_dir.exists():
+    print("Submodule path '" + this_dir + "' does not exist!")
     exit(1)
-sourcepath = dir / "sources.txt"
+sourcepath = this_dir / "sources.txt"
 if not sourcepath.exists():
-    print("No sources.txt file found in '"+dir+"'!")
+    print("No sources.txt file found in '"+this_dir+"'!")
     exit(1)
-repopath = dir / "repos.json"
+repopath = this_dir / "repos.json"
 if not repopath.exists():
-    print("No repos.json file found in '"+dir+"'!")
+    print("No repos.json file found in '"+this_dir+"'!")
     exit(1)
 
 with open(repopath) as repos_json:
@@ -151,7 +151,8 @@ parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
 parser.add_argument("-p", "--prefix", help="Prefix to append to all defaults")
 args = parser.parse_args()
 pfx = '' if not args.prefix else args.prefix
-print("Using prefix %s" % pfx)
+
+print("==== Checking submodule dependencies ====")
 
 # Build the paths for the submodules
 dargs = vars(args)
@@ -170,3 +171,24 @@ if len(sm_dep):
             print("Adding submodule %s at path %s" % (built_path, missing_sm[sm]))
             subprocess.run(["git", "submodule", "add", built_path, missing_sm[sm]])
             
+print("==== Replacing templates: ====")
+def template_quote(s):
+    return "${"+s+"}"
+
+ip_repos = []
+
+for k in d:
+    if k == this_repo:
+        print("==== ",
+              template_quote(this_repo),
+              "=",
+              this_dir)
+    else:
+        is_repo = d[k]['repository'] if k in d else False
+        if not is_repo:
+            print("==== ",
+                  template_quote(k),
+                  "=",
+                  d[k]['default'])
+        else:
+            ip_repos.append(k)
