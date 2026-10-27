@@ -160,3 +160,5 @@ for k in d:
 
 sm_dep, missing_sm = submodule_match(this_repo, d)
 
+if len(sm_dep):
+    print("Need to install %d/%d dependenc%s" % (len(missing_sm), len(sm_dep), "y" if len(sm_dep)==1 else "ies"))
