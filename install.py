@@ -184,7 +184,7 @@ for k in d:
               "=",
               this_dir)
     else:
-        is_repo = d[k]['repository'] if k in d else False
+        is_repo = d[k]['repository'] if 'repository' in d[k] else False
         if not is_repo:
             print("==== ",
                   template_quote(k),
