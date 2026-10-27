@@ -225,8 +225,7 @@ with open(sourcepath, "r") as f:
 to_append = []
 
 with open(cursourcepath, "r") as f:
-    cursrcs = set(f.readlines())
-    print(cursrcs)
-    for item in sourcefiles:
-        if item not in cursrcs:
-            print("==== %s not found in current sources.txt" % item)
+    cursrcs = set(f.read().splitlines())
+    to_append = [item for item in sourcefiles if item not in cursrcs]
+
+print("==== Need to add %d/%d sources file entries into sources.txt" % (len(to_append), len(sourcefiles)))
