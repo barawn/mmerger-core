@@ -81,7 +81,7 @@ def submodule_match( sm_this, sm_dict ):
     for sm in sm_dep:
         if sm in current_submodules:
             sm_dep[sm] = current_submodules[sm]
-            print("Matched existing submodule ",sm," at ",needed_submodules[sm])
+            print("Matched existing submodule ",sm," at ", sm_dep[sm])
         else:
             print("Need to fetch submodule ",sm)
             missing_sm[sm] = sm_dep[sm]
