@@ -166,3 +166,5 @@ if len(sm_dep):
         for sm in missing_sm:
             built_path = "https://" + sm[0] + "/" + sm[1] + "/" + sm[2]
             print("Adding submodule %s at path %s" % (built_path, missing_sm[sm]))
+            subprocess.run(["git", "submodule", "add", built_path, missing_sm[sm]])
+            
