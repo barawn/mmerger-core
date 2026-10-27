@@ -162,3 +162,7 @@ sm_dep, missing_sm = submodule_match(this_repo, d)
 
 if len(sm_dep):
     print("Need to install %d/%d dependenc%s" % (len(missing_sm), len(sm_dep), "y" if len(sm_dep)==1 else "ies"))
+    if len(missing_sm):
+        for sm in missing_sm:
+            built_path = "https://" + sm[0] + "/" + sm[1] + "/" + sm[2]
+            print("Adding submodule %s at path %s" % (built_path, missing_sm[sm]))
