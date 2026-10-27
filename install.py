@@ -149,6 +149,7 @@ parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
 parser.add_argument("-p", "--prefix", help="Prefix to append to all defaults")
 args = parser.parse_args()
 pfx = '' if not args.prefix else args.prefix
+print("Using prefix %s" % pfx)
 
 # Build the paths for the submodules
 dargs = vars(args)
