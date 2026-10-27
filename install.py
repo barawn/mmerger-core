@@ -43,6 +43,52 @@ import re
 #
 # You can add a prefix to all locations with the --prefix option.
 
+def submodule_match( sm_this, sm_dict ):
+    # This is our submodule matcher. We always fetch https submodules,
+    # but we'll match against SSH ones so we need to regex extract
+    # host/owner/repo tags to compare.
+    repo_regex = re.compile("(?P<proto>git@|https://)(?P<host>[\w\.@]+)(/|:)(?P<owner>[\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})")
+
+    # First start by building a list of the existing submodules.
+    current_submodules = {}
+    if Path(".gitmodules").exists():
+        submodule_config = configparser.ConfigParser()
+        # URLs in our submodule list are all https URLs.
+        # To match to SSH URLs when searching, we need to regex extract
+        # the host/owner/repo tags to compare.
+        submodule_config.optionxform = str
+        submodule_config.read(".gitmodules")
+        for sm in submodule_config:
+            if 'url' in submodule_config[sm]:
+                matches = repo_regex.search(submodule_config[sm].get('url'))
+                # to create a hashable type we make a list of host/owner/repo
+                host = matches['host']
+                owner = matches['owner']
+                repo = matches['repo']
+                current_submodules[(host, owner, repo)] = submodule_config[sm].get('path')
+
+    print("Checking submodule dependencies:")
+    sm_dep = {}
+    for k in sm_dict:
+        if k != sm_this:
+            matches = repo_regex.search(sm_dict[k]['url'])
+            host = matches['host']
+            owner = matches['owner']
+            repo = matches['repo']
+            sm_dep[(host, owner, repo)] = sm_dict[k]['default']
+
+    missing_sm = {}
+    for sm in sm_dep:
+        if sm in current_submodules:
+            sm_dep[sm] = current_submodules[sm]
+            print("Matched existing submodule ",sm," at ",needed_submodules[sm])
+        else:
+            print("Need to fetch submodule ",sm)
+            missing_sm[sm] = sm_dep[sm]
+    return (sm_dep, missing_sm)
+
+
+
 parser = argparse.ArgumentParser( prog='install.py',
                                   description='Install a submodule into a Git managed repo',
                                   add_help=False)
@@ -102,46 +148,14 @@ parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
 # And the prefix argument
 parser.add_argument("-p", "--prefix", help="Prefix to append to all defaults")
 args = parser.parse_args()
+pfx = '' if not args['prefix'] else args['prefix']
 
-print(args)
-
-# This is our submodule matcher. We always fetch https submodules,
-# but we'll match against SSH ones so we need to regex extract
-# host/owner/repo tags to compare.
-repo_regex = re.compile("(?P<proto>git@|https://)(?P<host>[\w\.@]+)(/|:)(?P<owner>[\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})")
-
-# First start by building a list of the existing submodules.
-current_submodules = {}
-if Path(".gitmodules").exists():
-    submodule_config = configparser.ConfigParser()
-    # URLs in our submodule list are all https URLs.
-    # To match to SSH URLs when searching, we need to regex extract
-    # the host/owner/repo tags to compare.
-    submodule_config.optionxform = str
-    submodule_config.read(".gitmodules")
-    for sm in submodule_config:
-        if 'url' in submodule_config[sm]:
-            matches = repo_regex.search(submodule_config[sm].get('url'))
-            # to create a hashable type we make a list of host/owner/repo
-            host = matches['host']
-            owner = matches['owner']
-            repo = matches['repo']
-            current_submodules[(host, owner, repo)] = submodule_config[sm].get('path')
-
-print("Checking submodule dependencies:")
-needed_submodules = {}
+# Build the paths for the submodules
 for k in d:
     if k != this_repo:
-        matches = repo_regex.search(d[k]['url'])
-        host = matches['host']
-        owner = matches['owner']
-        repo = matches['repo']
-        needed_submodules[(host, owner, repo)] = d[k]['default']
+        default_path = Path(pfx)/Path(d[k]['default'])
+        if args[k]:
+            d[k]['default'] = args[k]
 
-for sm in needed_submodules:
-    if sm in current_submodules:
-        needed_submodules[sm] = current_submodules[sm]
-        print("Matched existing submodule ",sm," at ",needed_submodules[sm])
-    else:
-        print("Need to fetch submodule ",sm)
+sm_dep, missing_sm = submodule_match(this_repo, d)
 
