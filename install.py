@@ -285,7 +285,7 @@ if simpath.exists():
 
 
 
-autoheader = "-- automatically added by ${autopath} submodule: if unneeded, comment out."
+autoheader = "# -- automatically added by ${autopath} submodule: if unneeded, comment out."
 autobody = "add_ip_repository [file join [get_repo_dir] ${autorepo}]"
 autopath = templ_dict[this_repo]
 
