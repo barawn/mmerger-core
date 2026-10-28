@@ -109,7 +109,8 @@ parser = argparse.ArgumentParser( prog='install.py',
                                   add_help=False)
 
 parser.add_argument("directory", help="Path to submodule")
-
+parser.add_argument("-s", "--simulate", help="Do a dry run (don't actually change anything)",
+                    action='store_true')
 args, unknown = parser.parse_known_args()
 
 # We need to two-stage parse the arguments, since we want to
@@ -188,8 +189,12 @@ if len(sm_dep):
         for sm in missing_sm:
             built_path = "https://" + sm[0] + "/" + sm[1] + "/" + sm[2]
             print("Adding submodule %s at path %s" % (built_path, missing_sm[sm]))
-            subprocess.run(["git", "submodule", "add", built_path, missing_sm[sm]])
-            
+            smargs = ["git", "submodule", "add", built_path, missing_sm[sm]]            
+            if not args.simulate:
+                subprocess.run(smargs)
+            else:
+                echo(' '.join(smargs))
+                
 print("==== Replacing templates: ====")
 def template_quote(s):
     return "${"+s+"}"
@@ -220,10 +225,67 @@ def match_files(newf, oldf, templ):
         src = Template(f.read())
         entries = src.substitute(templ).splitlines()
     to_append = []
-    with open(oldf, "r") as f:
-        cursrcs = set(f.read().splitlines())
-        to_append = [item for item in entries if item not in cursrcs]
-    print("==== Need to add %d/%d entries into %s" % (len(to_append), len(entries), oldf))
+    if not oldf.exists():
+        to_append = entries
+        print("%s does not exist - need all %d entries" % (oldf, len(entries)))
+    else:
+        with open(oldf, "r") as f:
+            cursrcs = set(f.read().splitlines())
+            to_append = [item for item in entries if item not in cursrcs]
+        print("Need to add %d/%d entries into %s" % (len(to_append), len(entries), oldf))
     return to_append
 
+def add_entries(oldf, entries):
+    with open(oldf, "a") as f:
+        for entry in entries:
+            print("Adding %s to %s" % (entry, oldf))
+            if not args.simulate:
+                f.write(src)
+
 src_append = match_files(sourcepath, cursourcepath, templ_dict)
+add_entries(cursourcepath, src_append)
+
+ippath = Path(this_dir)/"ips.txt"
+if ippath.exists():
+    curippath = Path("ips.txt")
+    ip_append = match_files(ippath, curippath, templ_dict)
+    add_entries(curippath, ip_append)
+
+simippath = Path(this_dir)/"simips.txt"
+if simippath.exists():
+    cursimippath = Path("simips.txt")
+    simip_append = match_files(simippath, cursimippath, templ_dict)
+    add_entries(cursimippath, simip_append)
+
+constrpath = Path(this_dir)/"constraints.txt"
+if constrpath.exists():
+    curconstrpath = Path("constraints.txt")
+    constr_append = match_files(constrpath, curconstrpath, templ_dict)
+    add_entries(curconstrpath, constr_append)
+
+simpath = Path(this_dir)/"simulation.txt"
+
+if simpath.exists():
+    cursimpath = Path("simulation.txt")
+    sim_append = match_files(simpath, cursimpath, templ_dict)
+    add_entries(cursimpath, sim_append)
+
+# Add any ip repositories to the project_init.tcl file.
+# First, create the exact line we want. We then need to search
+# for either that line or that exact line with a # in front of it.
+# Plus a utility text in front.
+# -- automatically added by $(path) submodule: if unneeded, comment out.
+# where 'path' is templ_dict[this_repo]
+
+autoheader = "-- automatically added by ${autopath} submodule: if unneeded, comment out."
+autobody = "add_ip_repository [file join [get_repo_dir] ${autorepo}]"
+
+
+autopath = templ_dict[this_repo]
+for k in d:
+    is_repo = d[k]['repository'] if 'repository' in d[k] else False
+    if is_repo:
+        autopath = d[k]['default']
+        autorepo = ' '.join(Path(autopath).parts)
+        print(Template(autoheader).substitute(autopath=autopath))
+        print(Template(autobody).substitute(autorepo=autorepo))
