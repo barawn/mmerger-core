@@ -310,13 +310,13 @@ for k in d:
     if is_repo:
         repopath = d[k]['default']
         autorepo = ' '.join(Path(repopath).parts)
-        l = Template(autobody).substitute(autorepo=autorepo)
+        rl = Template(autobody).substitute(autorepo=autorepo)
         for l in repolines:
             matches = re.match(repore, l)
-            if matches['iprepoline'] == autorepo:
+            if matches['iprepoline'] == rl:
                 print("IP repository at '%s' already in project_init.tcl ('%s')" % (d[k]['default'], l))
             else:
-                initlines.append(autorepo)
+                initlines.append(rl)
 
 if len(initlines):
     with open(curinitpath, "a") as f:
