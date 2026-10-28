@@ -304,7 +304,8 @@ with open(curinitpath, "r") as f:
             repolines.append(line)
 
 initlines = []
-#        print(Template(autoheader).substitute(autopath=autopath))
+header = Template(autoheader).substitute(autopath=autopath)
+
 for k in d:
     is_repo = d[k]['repository'] if 'repository' in d[k] else False
     if is_repo:
@@ -320,7 +321,7 @@ for k in d:
 
 if len(initlines):
     with open(curinitpath, "a") as f:
-        print("Appending to project_init.tcl: ", autoheader)
+        print("Appending to project_init.tcl: ", header)
         if not args.simulate:
             f.write(autoheader)
         for l in initlines:
