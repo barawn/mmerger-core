@@ -291,19 +291,39 @@ autopath = templ_dict[this_repo]
 
 print("=== Processing IP repositories added in project_init.tcl")
 
-repore = "^#(\s*)(?P<iprepoline>add_ip_repository.*$)"
+# Search for either an active add_ip_repository to the same location OR
+# a commented out line to the same location (which indicates it's not needed
+# for some reason)
+repore = "^#?(\s*)(?P<iprepoline>add_ip_repository.*$)"
 repolines = []
 with open(curinitpath, "r") as f:
     for line in f.read().splitlines():        
         matches = re.match(repore, line)
         if matches:
-            print("Found an IP repo add line: ", line)
+            print("Found an IP repo add line already in project_init.tcl: ", line)
             repolines.append(line)
 
+initlines = []
+#        print(Template(autoheader).substitute(autopath=autopath))
 for k in d:
     is_repo = d[k]['repository'] if 'repository' in d[k] else False
     if is_repo:
         repopath = d[k]['default']
         autorepo = ' '.join(Path(repopath).parts)
-        print(Template(autoheader).substitute(autopath=autopath))
-        print(Template(autobody).substitute(autorepo=autorepo))
+        l = Template(autobody).substitute(autorepo=autorepo)
+        for l in repolines:
+            matches = re.match(repore, l)
+            if matches['iprepoline'] == autorepo:
+                print("IP repository at '%s' already in project_init.tcl ('%s')" % (d[k]['default'], l))
+            else:
+                initlines.append(autorepo)
+
+if len(initlines):
+    with open(curinitpath, "a") as f:
+        print("Appending to project_init.tcl: ", autoheader)
+        if not args.simulate:
+            f.write(autoheader)
+        for l in initlines:
+            print("Appending to project_init.tcl: ", l)
+            if not args.simulate:
+                f.write(l)
