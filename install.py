@@ -135,6 +135,12 @@ if not cursourcepath.exists():
     print("No sources.txt found in current directory!")
     print("Need to be in the top directory of a Git managed repository.")
     exit(1)
+
+curinitpath = Path("project_init.tcl")
+if not curinitpath.exists():
+    print("No project_init.tcl found in current directory!")
+    print("Need to be in the top directory of a Git managed repository.")
+    exit(1)
     
 with open(repopath) as repos_json:
     d = json.load(repos_json)
@@ -277,15 +283,27 @@ if simpath.exists():
 # -- automatically added by $(path) submodule: if unneeded, comment out.
 # where 'path' is templ_dict[this_repo]
 
+
+
 autoheader = "-- automatically added by ${autopath} submodule: if unneeded, comment out."
 autobody = "add_ip_repository [file join [get_repo_dir] ${autorepo}]"
-
-
 autopath = templ_dict[this_repo]
+
+print("=== Processing IP repositories added in project_init.tcl")
+
+repore = "^#(\s*)(?P<iprepoline>add_ip_repository.*$)"
+repolines = []
+with open(curinitpath, "r") as f:
+    for line in f.read().splitlines():        
+        matches = re.match(repore, line)
+        if matches:
+            print("Found an IP repo add line: ", line)
+            repolines.append(line)
+
 for k in d:
     is_repo = d[k]['repository'] if 'repository' in d[k] else False
     if is_repo:
-        autopath = d[k]['default']
-        autorepo = ' '.join(Path(autopath).parts)
+        repopath = d[k]['default']
+        autorepo = ' '.join(Path(repopath).parts)
         print(Template(autoheader).substitute(autopath=autopath))
         print(Template(autobody).substitute(autorepo=autorepo))
