@@ -377,6 +377,7 @@ if sminitpath.exists():
     with open(curinitpath, "r") as f:
         initlines = f.read().splitlines()
         for line in initlines:
+            print("%d: %s" % (cur_lineno, line))
             matches = re.match(sminitre, line)
             if matches:
                 print("project_init.tcl already sources submodule init: %s", line)
@@ -385,6 +386,7 @@ if sminitpath.exists():
                 last_lineno = cur_lineno
             if re.match("^\s*check_all\s*$", line):
                 line_number = last_lineno + 1
+                print("matched at line %d: line_number is now %d" % (cur_lineno, line_number))
             cur_lineno = cur_lineno + 1
     if need_source:
         print("Adding source of submodule init at line number %d:" % line_number)
