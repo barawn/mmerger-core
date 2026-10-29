@@ -381,7 +381,7 @@ if sminitpath.exists():
             if matches:
                 print("project_init.tcl already sources submodule init: %s", line)
                 need_source = False
-            if line[0] != '#':
+            if len(line) and line[0] != '#':
                 last_lineno = cur_lineno
             if re.match("^\s*check_all\s*$", line):
                 line_number = last_lineno + 1
