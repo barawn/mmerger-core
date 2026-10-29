@@ -190,12 +190,6 @@ for k in d:
     if k != this_repo:
         parser.add_argument('--'+k, help="Install location for '"+k+"' submodule")
 
-sminitfile = Path("submodule_init.tcl.tmpl")
-sminitdefault = sminitfile.name + '_init.tcl'
-if sminitfile.exists():
-    parser.add_argument('-i','--initfile', help="Name of the submodule init tcl file.",
-                        type=str, default=sminitdefault)
-
 # Restore the help argument
 parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
                     help='show this help message and exit')
@@ -358,7 +352,7 @@ if len(initlines):
 if sminitpath.exists():
     print("==== Processing generation and add of submodule init Tcl in project_init.tcl")
 
-    sminit = "source [file join [get_repo_dir] "+" "+args.initfile+"]"
+    sminit = "source [file join [get_repo_dir] "+" "+args.sminit+"]"
     sminitre = "^#?(\s*)"+sminit+".*$)"
 
     # Generate the current text.
@@ -368,7 +362,7 @@ if sminitpath.exists():
     # And output it. This will overwrite an existing file there. Maybe we'll add a
     # warning at some point, lol.
     if not args.simulate:
-        with open(Path(args.initfile, "w")) as f:
+        with open(Path(args.sminit, "w")) as f:
             f.write(sminittext)
 
     # Now we need to look in project_init.tcl for sminit
