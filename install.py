@@ -389,7 +389,7 @@ if sminitpath.exists():
     if need_source:
         print("Adding source of submodule init at line number %d:" % line_number)
         print("--------------------------------------------------")
-        initlines.insert(line_number, [autoheader, sminit])
+        initlines[line_number:line_number] = [autoheader, sminit]
         print("\n".join(initlines[line_number-2:line_number+4]))
         print("--------------------------------------------------")
         if not args.simulate:
