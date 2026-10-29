@@ -1,0 +1,21 @@
+Copy sources from:
+
+\ip_cores\<core name>\<core name>\src
+\ip_cores\<core_name>\<core name>\gt
+\ip_cores\<core name> (not the simulation files)
+
+Copy the example design files:
+The the example design files are in <example folder>/imports
+The support file is the top level when the common block is in the example design. This support file will be the top level.
+
+The aurora_8b10b_3ln_cdc_sync and aurora_8b10b_3ln_cdc_sync_exdes are the same so
+get rid of the _exdes in aurora_8b10b_3ln_SUPPORT_RESET_LOGIC.
+
+Make the user clock and input and connect it to the sync clock (?).
+
+Connect pll_not_locked.
+
+We don't need:
+CLOCK_MODULE
+frame_gen
+frame_check
