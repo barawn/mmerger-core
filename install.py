@@ -353,7 +353,7 @@ if sminitpath.exists():
     print("==== Processing generation and add of submodule init Tcl in project_init.tcl")
 
     sminit = "source [file join [get_repo_dir] "+" "+args.sminit+"]"
-    sminitre = "^#?(\s*)"+sminit+".*$)"
+    sminitre = "^#?(\s*)"+sminit+".*$"
 
     # Generate the current text.
     sminittext = None
