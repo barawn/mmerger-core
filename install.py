@@ -41,11 +41,20 @@ from string import Template
 #    it is false. If it's true, it's treated as an IP repository to
 #    be added in the project_init.tcl script.
 #
+# You MAY have a constraints.txt, ips.txt, simips.txt, simulation.txt.
+#
+# You MAY also have a submodule_init.tcl.tmpl file. This will be turned
+# into an {submodule location}_init.tcl. This can be overwritten with
+# the --sminit parameter.
+#
 # You can override the 'default' destination location by using
 # an argument named as the key (e.g. --VERILOGLIB=verilog-library-barawn).
 #
 # You can add a prefix to all locations with the --prefix option.
-
+#
+# If you run this command when a submodule is already installed, it
+# won't screw anything up, it'll automatically detect that things have been
+# run. It will also actually update anything that needs to be updated.
 
 # Match up submodules from repos.json to the
 # ones in the gitmodules file if possible and if found,
@@ -141,7 +150,7 @@ if not curinitpath.exists():
     print("No project_init.tcl found in current directory!")
     print("Need to be in the top directory of a Git managed repository.")
     exit(1)
-    
+
 with open(repopath) as repos_json:
     d = json.load(repos_json)
 
@@ -165,10 +174,27 @@ if this_repo is None:
     exit(1)
 else:
     print("Installation script for submodule using replacement key "+this_repo)
-        
+
+# Determine if we need to add the --sminit parameter.
+sminitpath = Path(this_dir)/"submodule_init.tcl.tmpl"
+print("Checking for %s" % sminitpath)
+smdefault = d[this_repo]+"_init.tcl"
+if sminitpath.exists():
+    parser.add_argument("--sminit",
+                        default=smdefault,
+                        help='Name of the submodule initialization Tcl file to generate')
+else:
+    print("No sminit")
+    
 for k in d:
     if k != this_repo:
         parser.add_argument('--'+k, help="Install location for '"+k+"' submodule")
+
+sminitfile = Path("submodule_init.tcl.tmpl")
+sminitdefault = sminitfile.name + '_init.tcl'
+if sminitfile.exists():
+    parser.add_argument('-i','--initfile', help="Name of the submodule init tcl file.",
+                        type=str, default=sminitdefault)
 
 # Restore the help argument
 parser.add_argument("-h", "--help", action='help', default=argparse.SUPPRESS,
@@ -328,3 +354,34 @@ if len(initlines):
             print("Appending to project_init.tcl: ", l)
             if not args.simulate:
                 f.write(l)
+
+if sminitpath.exists():
+    print("==== Processing generation and add of submodule init Tcl in project_init.tcl")
+
+    sminit = "source [file join [get_repo_dir] "+" "+args.initfile+"]"
+    sminitre = "^#?(\s*)"+sminit+".*$)"
+
+    # Generate the current text.
+    sminittext = None
+    with open(sminitpath, "r") as f:
+        sminittext = Template(f.read()).substitute(templ_dict)
+    # And output it. This will overwrite an existing file there. Maybe we'll add a
+    # warning at some point, lol.
+    if not args.simulate:
+        with open(Path(args.initfile, "w")) as f:
+            f.write(sminittext)
+
+    # Now we need to look in project_init.tcl for sminit
+    need_source = True
+    with open(curinitpath, "r") as f:
+        for line in f.read().splitlines():
+            matches = re.match(sminitre, line)
+            if matches:
+                print("project_init.tcl already sources submodule init: %s", line)
+                need_source = False
+    if need_source:
+        print("Appending source of submodule init in project_init.tcl.")
+        if not args.simulate:
+            with open(curinitpath, "a") as f:
+                f.write(autoheader)
+                f.write(sminit)
