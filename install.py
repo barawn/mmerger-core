@@ -361,6 +361,7 @@ if sminitpath.exists():
         sminittext = Template(f.read()).substitute(templ_dict)
     # And output it. This will overwrite an existing file there. Maybe we'll add a
     # warning at some point, lol.
+    print("Generating %s" % args.sminit)
     if not args.simulate:
         with open(Path(args.sminit, "w")) as f:
             f.write(sminittext)
