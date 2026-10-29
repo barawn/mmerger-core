@@ -350,7 +350,7 @@ if len(initlines):
                 f.write(l)
 
 if sminitpath.exists():
-    print("==== Processing generation and add of submodule init Tcl in project_init.tcl")
+    print("==== Processing generation and add of submodule init Tcl in project_init.tcl ====")
 
     sminit = "source [file join [get_repo_dir] "+" "+args.sminit+"]"
     sminitre = "^#?(\s*)"+sminit+".*$"
@@ -366,17 +366,33 @@ if sminitpath.exists():
         with open(Path(args.sminit, "w")) as f:
             f.write(sminittext)
 
-    # Now we need to look in project_init.tcl for sminit
+    # Now we need to look in project_init.tcl for sminit.
+    # And we also look for the first uncommented line prior to
+    # check_all.
     need_source = True
+    line_number = None
+    last_lineno = 0
+    cur_lineno = 0
+    initlines = []
     with open(curinitpath, "r") as f:
-        for line in f.read().splitlines():
+        initlines = f.read().splitlines()
+        for line in initlines:
             matches = re.match(sminitre, line)
             if matches:
                 print("project_init.tcl already sources submodule init: %s", line)
                 need_source = False
+            if line[0] != '#':
+                last_lineno = cur_lineno
+            if re.match("^\s*check_all\s*$"):
+                line_number = last_lineno + 1
+            cur_lineno = cur_lineno + 1
     if need_source:
-        print("Appending source of submodule init in project_init.tcl.")
+        print("Adding source of submodule init at line number %d:" % line_number)
+        print("--------------------------------------------------")
+        initlines.insert(line_number, [autoheader, sminit])
+        print("\n".join(initlines[line_number-2:line_number+4]))
+        print("--------------------------------------------------")
         if not args.simulate:
-            with open(curinitpath, "a") as f:
-                f.write(autoheader)
-                f.write(sminit)
+            with open(curinitpath, "w") as f:
+                f.write(initlines)
+
