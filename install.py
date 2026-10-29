@@ -383,7 +383,7 @@ if sminitpath.exists():
                 need_source = False
             if line[0] != '#':
                 last_lineno = cur_lineno
-            if re.match("^\s*check_all\s*$"):
+            if re.match("^\s*check_all\s*$", line):
                 line_number = last_lineno + 1
             cur_lineno = cur_lineno + 1
     if need_source:
