@@ -385,7 +385,7 @@ if sminitpath.exists():
             if re.match("^\s*check_all\s*$", line):
                 line_number = last_lineno + 1
                 print("matched at line %d: line_number is now %d" % (cur_lineno, line_number))
-            else if len(line) and line[0] != '#':
+            elif len(line) and line[0] != '#':
                 last_lineno = cur_lineno
             cur_lineno = cur_lineno + 1
     if need_source:
