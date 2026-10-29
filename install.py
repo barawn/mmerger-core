@@ -176,9 +176,9 @@ else:
     print("Installation script for submodule using replacement key "+this_repo)
 
 # Determine if we need to add the --sminit parameter.
-sminitpath = Path(this_dir)/"submodule_init.tcl.tmpl"
+sminitpath = this_dir/"submodule_init.tcl.tmpl"
 print("Checking for %s" % sminitpath)
-smdefault = d[this_repo]+"_init.tcl"
+smdefault = this_dir.name+"_init.tcl"
 if sminitpath.exists():
     parser.add_argument("--sminit",
                         default=smdefault,
