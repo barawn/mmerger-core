@@ -383,7 +383,7 @@ if sminitpath.exists():
     # warning at some point, lol.
     print("Generating %s" % args.sminit)
     if not args.simulate:
-        with open(Path(args.sminit, "w")) as f:
+        with open(Path(args.sminit), "w") as f:
             f.write(sminittext)
 
     # Now we need to look in project_init.tcl for sminit.
