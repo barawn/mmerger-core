@@ -266,7 +266,7 @@ def add_entries(oldf, entries):
         for entry in entries:
             print("Adding %s to %s" % (entry, oldf))
             if not args.simulate:
-                f.write(src)
+                f.write(entry)
 
 src_append = match_files(sourcepath, cursourcepath, templ_dict)
 add_entries(cursourcepath, src_append)
