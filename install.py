@@ -309,6 +309,12 @@ autoheader = "# -- automatically added by ${autopath} submodule: if unneeded, co
 autobody = "add_ip_repository [file join [get_repo_dir] ${autorepo}]"
 autopath = templ_dict[this_repo]
 
+#
+# The project_init.tcl changes need to be built up, because we need to look for
+# either "check_all" or "# project_init trailer" and insert the first non-comment
+# slot before then.
+# 
+
 print("=== Processing IP repositories added in project_init.tcl")
 
 # Search for either an active add_ip_repository to the same location OR
@@ -316,15 +322,30 @@ print("=== Processing IP repositories added in project_init.tcl")
 # for some reason)
 repore = "^#?(\s*)(?P<iprepoline>add_ip_repository.*$)"
 repolines = []
+
+# We're going to snarf in all of the curinitlines here, since we need to do it anyway.
+# We'll also determine where we can insert the lines here.
+curinitlines = []
+target_line = None
 with open(curinitpath, "r") as f:
-    for line in f.read().splitlines():        
+    curinitlines = f.read().splitlines()
+    last_lineno = 0
+    cur_lineno = 0
+    for line in curinitlines:        
         matches = re.match(repore, line)
         if matches:
             print("Found an IP repo add line already in project_init.tcl: ", line)
             repolines.append(line)
-
-initlines = []
-header = Template(autoheader).substitute(autopath=autopath)
+        if re.match("^\s*check_all\s*$", line) or re.match("^#\s*project_init trailer\s*$", line):
+            target_line = last_lineno + 1
+            print("Matched end of project_init body at line %d: target_line is now %d" % (cur_lineno, target_line))
+        elif len(line) and line[0] != '#':
+            last_lineno = cur_lineno
+        cur_lineno = cur_lineno + 1
+            
+# Build up changes to project_init.tcl.
+# All initlines changes start off with the autoheader. 
+initlines = [ Template(autoheader).substitute(autopath=autopath) ]
 
 for k in d:
     is_repo = d[k]['repository'] if 'repository' in d[k] else False
@@ -339,16 +360,7 @@ for k in d:
             else:
                 initlines.append(rl)
 
-if len(initlines):
-    with open(curinitpath, "a") as f:
-        print("Appending to project_init.tcl: ", header)
-        if not args.simulate:
-            f.write(autoheader)
-        for l in initlines:
-            print("Appending to project_init.tcl: ", l)
-            if not args.simulate:
-                f.write(l)
-
+# initlines now contains all of the adds needed for repository generation
 if sminitpath.exists():
     print("==== Processing generation and add of submodule init Tcl in project_init.tcl ====")
 
@@ -370,31 +382,22 @@ if sminitpath.exists():
     # And we also look for the first uncommented line prior to
     # check_all.
     need_source = True
-    line_number = None
-    last_lineno = 0
-    cur_lineno = 0
-    initlines = []
-    with open(curinitpath, "r") as f:
-        initlines = f.read().splitlines()
-        for line in initlines:
-            print("%d: %s" % (cur_lineno, line))
-            matches = re.match(sminitre, line)
-            if matches:
-                print("project_init.tcl already sources submodule init: %s", line)
-                need_source = False
-            if re.match("^\s*check_all\s*$", line):
-                line_number = last_lineno + 1
-                print("matched at line %d: line_number is now %d" % (cur_lineno, line_number))
-            elif len(line) and line[0] != '#':
-                last_lineno = cur_lineno
-            cur_lineno = cur_lineno + 1
+    for line in curinitlines:
+        matches = re.match(sminitre, line)
+        if matches:
+            print("project_init.tcl already sources submodule init: %s", line)
+            need_source = False
+
     if need_source:
-        print("Adding source of submodule init at line number %d:" % line_number)
-        print("--------------------------------------------------")
-        initlines[line_number:line_number] = [autoheader, sminit]
-        print("\n".join(initlines[line_number-2:line_number+4]))
-        print("--------------------------------------------------")
-        if not args.simulate:
-            with open(curinitpath, "w") as f:
-                f.write(initlines)
+        initlines.append(sminit)
+
+if len(initlines)>1:
+    print("Adding to project_init.tcl at line number %d:" % target_line)
+    print("--------------------------------------------------")
+    curinitlines[target_line:target_line] = initlines
+    print("\n".join(curinitlines[line_number-2:line_number+4]))
+    print("--------------------------------------------------")
+    if not args.simulate:
+        with open(curinitpath, "w") as f:
+            f.write(curinitlines)
 
