@@ -206,7 +206,8 @@ for k in d:
     if k != this_repo:
         default_path = Path(pfx)/Path(d[k]['default'])
         d[k]['default'] = dargs[k] if dargs[k] else default_path
-
+print(d)
+        
 sm_dep, missing_sm = submodule_match(this_repo, d)
 
 if len(sm_dep):
@@ -315,7 +316,7 @@ autopath = templ_dict[this_repo]
 # slot before then.
 # 
 
-print("=== Processing IP repositories added in project_init.tcl")
+print("==== Processing IP repositories added in project_init.tcl ====")
 
 # Search for either an active add_ip_repository to the same location OR
 # a commented out line to the same location (which indicates it's not needed
