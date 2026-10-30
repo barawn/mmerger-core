@@ -407,5 +407,7 @@ if len(initlines)>1:
     print("--------------------------------------------------")
     if not args.simulate:
         with open(curinitpath, "w") as f:
-            f.write(curinitlines)
+            for line in curinitlines:
+                f.write(line)
+                
 
