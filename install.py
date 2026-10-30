@@ -367,10 +367,18 @@ if sminitpath.exists():
     sminit = "source [file join [get_repo_dir] "+" "+args.sminit+"]"
     sminitre = "^#?(\s*)"+sminit+".*$"
 
-    # Generate the current text.
+    # Generate the current text. We need to generate a **new** template
+    # dictionary because we want paths to be split.
+    tcl_templ_dict = {}
+    for k in templ_dict:
+        p = Path(templ_dict[k])
+        v = ' '.join(p.parts)
+        tcl_templ_dict[k] = v
+        print("Tcl template: %s = %s" % (k, v))
+    
     sminittext = None
     with open(sminitpath, "r") as f:
-        sminittext = Template(f.read()).substitute(templ_dict)
+        sminittext = Template(f.read()).substitute(tcl_templ_dict)
     # And output it. This will overwrite an existing file there. Maybe we'll add a
     # warning at some point, lol.
     print("Generating %s" % args.sminit)
