@@ -244,6 +244,7 @@ for k in d:
                   d[k]['default'])
         else:
             ip_repos.append(k)
+print(templ_dict)
 
 def match_files(newf, oldf, templ):
     entries = []
