@@ -206,7 +206,6 @@ for k in d:
     if k != this_repo:
         default_path = Path(pfx)/Path(d[k]['default'])
         d[k]['default'] = dargs[k] if dargs[k] else default_path
-print(d)
         
 sm_dep, missing_sm = submodule_match(this_repo, d)
 
@@ -220,7 +219,7 @@ if len(sm_dep):
             if not args.simulate:
                 subprocess.run(smargs)
             else:
-                echo(' '.join(smargs))
+                print(' '.join(smargs))
                 
 print("==== Replacing templates: ====")
 def template_quote(s):
