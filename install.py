@@ -395,7 +395,7 @@ if len(initlines)>1:
     print("Adding to project_init.tcl at line number %d:" % target_line)
     print("--------------------------------------------------")
     curinitlines[target_line:target_line] = initlines
-    print("\n".join(curinitlines[line_number-2:line_number+4]))
+    print("\n".join(curinitlines[target_line-2:target_line+4]))
     print("--------------------------------------------------")
     if not args.simulate:
         with open(curinitpath, "w") as f:
