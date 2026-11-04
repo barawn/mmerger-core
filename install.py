@@ -393,7 +393,7 @@ if sminitpath.exists():
     for line in curinitlines:
         matches = re.match(sminitre, line)
         if matches:
-            print("project_init.tcl already sources submodule init: %s", line)
+            print("project_init.tcl already sources submodule init: %s" % line)
             need_source = False
 
     if need_source:
