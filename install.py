@@ -365,7 +365,7 @@ if sminitpath.exists():
     print("==== Processing generation and add of submodule init Tcl in project_init.tcl ====")
 
     sminit = "source [file join [get_repo_dir] "+" "+args.sminit+"]"
-    sminitre = "^#?(\s*)"+sminit+".*$"
+    sminitre = "^#?\s*?"+re.escape(sminit)+".*?$"
 
     # Generate the current text. We need to generate a **new** template
     # dictionary because we want paths to be split.
