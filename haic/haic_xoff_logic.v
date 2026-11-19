@@ -16,10 +16,14 @@ module haic_xoff_logic( input clk,
                         input prog_full_i,
                         input almost_full_i );
 
+    parameter CLKTYPE = "NONE";
+
     reg [8:0] flow_prog_full_assert = {9{1'b1}};
     reg [8:0] flow_prog_full_negate = {9{1'b1}};
     reg flow_xoff_en = 1'b0;
+    (* CUSTOM_CC_SRC = CLKTYPE *)
     reg dropped = 1'b0;
+    (* CUSTOM_CC_SRC = CLKTYPE *)
     reg overflow = 1'b0;
     reg flow_xoff = 1'b0;
     reg flow_critical = 1'b0;

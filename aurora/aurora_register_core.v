@@ -237,6 +237,7 @@ module aurora_register_core #(
     assign stop_disable_o = (stop_delay == {32{1'b0}});
     assign stop_delay_o = stop_delay;
     // HP delay (how long to assert gt_reset)
+    (* CUSTOM_CC_SRC = "XILCLK" *)
     reg [15:0] gt_reset_len = GT_RESET_LEN_DEFAULT;
     assign gt_reset_len_o = gt_reset_len ;
     

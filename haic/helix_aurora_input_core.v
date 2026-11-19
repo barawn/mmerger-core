@@ -38,6 +38,9 @@ module helix_aurora_input_core( input s_axis_aclk,
                                 output [4:0] m_axis_err_tuser,
                                 output       m_axis_err_tlast );
 
+    parameter S_CLKTYPE = "NONE";
+    parameter M_CLKTYPE = "NONE";
+
     // Local jam disable, updated at update_i.
     reg jam_disable = 0;
     // Jam error.
@@ -71,7 +74,8 @@ module helix_aurora_input_core( input s_axis_aclk,
     wire flow_almost_full;
     wire [8:0] flow_prog_full_assert;
     wire [8:0] flow_prog_full_negate;    
-    haic_xoff_logic u_xoff_logic( .clk(s_axis_aclk),.reset(!s_axis_aresetn),
+    haic_xoff_logic #(.CLKTYPE(S_CLKTYPE))
+                    u_xoff_logic( .clk(s_axis_aclk),.reset(!s_axis_aresetn),
                                   .update_i(s_update_i),
                                   // XOFF interface
                                   .xoff_o(flow_xoff_o),

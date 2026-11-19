@@ -413,6 +413,7 @@ module aurora_merge_v3 #( parameter NUM_LANES=8,
                         .CEB(1'b0),
                         .O(gt_refclk),
                         .ODIV2(gt_to_bufg));                                                                    
+    // gt_refclk_bufg is GTBUFCLK
     BUFG_GT u_gtrefclkbufg_ibuf(.I(gt_to_bufg),.O(gt_refclk_bufg));
  
     assign s_axis_ctrl_tready = !aurora_ctrl_fifo_full;
@@ -560,7 +561,9 @@ module aurora_merge_v3 #( parameter NUM_LANES=8,
             end
             
             // ratio here is 1.6/1, just do 8
-            async_register #(.WIDTH(8),.UPDATE_PERIOD(8)) 
+            async_register #(.WIDTH(8),.UPDATE_PERIOD(8),
+                             .CLKATYPE("AURCLK"),
+                             .CLKBTYPE("XILCLK")) 
                 u_cc_flowctrl_count(.in_clkA(flowctrl_count_aurora),.clkA(aurora_clk),
                                     .out_clkB(flowctrl_count[FLOWCTRL_COUNT_WIDTH*ln +: FLOWCTRL_COUNT_WIDTH]),
                                     .clkB(rclk));
@@ -655,7 +658,9 @@ module aurora_merge_v3 #( parameter NUM_LANES=8,
             // err_rx_tuser[4] is now 'partial 64-bit value'
             assign err_rx_tuser[7*ln + 3] = (err_rx_tuser_raw[4:3] != 2'b11);
             assign err_rx_tuser[7*ln + 4 +: 3] = ln;
-            helix_aurora_input_core u_haic(.s_axis_aclk(aurora_clk),
+            helix_aurora_input_core #(.S_CLKTYPE("AURCLK"),
+                                      .M_CLKTYPE("XILCLK"))
+                                    u_haic(.s_axis_aclk(aurora_clk),
                                            .s_axis_aresetn(aresetn_aurora_clk),
                                            .s_axis_tdata(vwrap_tdata),
                                            .s_axis_tvalid(vwrap_tvalid),
