@@ -349,11 +349,13 @@ module aurora_merge_v3 #( parameter NUM_LANES=8,
     // Indicates that a frame overflowed, in aclk domain
     wire [NUM_LANES-1:0] flow_overflow;
     // Indicates that a frame overflowed, in rclk domain
+    (* CUSTOM_CC_DST = "XILCLK" *)
     reg [NUM_LANES-1:0] flow_overflow_rclk = {NUM_LANES{1'b0}};
     // Indicates that an event path hit its jam counter.
     wire [NUM_LANES-1:0] flow_jammed;
     // Indicates that an input path hit its stuck counter.
     wire [NUM_LANES-1:0] flow_stuck;
+    (* CUSTOM_CC_DST = "XILCLK" *)
     reg [NUM_LANES-1:0] flow_stuck_rclk = {NUM_LANES{1'b0}};
     
     // someone tried to send data on a link that can't take it
