@@ -108,7 +108,7 @@ namespace eval MMergerCore {
 	set clktypes($initclk) INITCLK
 	set xilclk [get_clocks -of_objects [get_nets $corename/xilclk]]
 	set clktypes($xilclk) XILCLK
-	set aurclk [get_clocks -of_objects [get_nets $corename/u_aurora/LANE[0].u_cc_flowctrl_count/tx_out_clk]]
+	set aurclk [get_clocks -of_objects [get_nets $corename/u_aurora/LANE[0].u_cc_flowctrl_count/clkA]]
 	set clktypes($aurclk) AURCLK
 	set aclk [get_clocks -of_objects [get_nets $corename/aclk]]
 	set clktypes($aclk) ACLK
