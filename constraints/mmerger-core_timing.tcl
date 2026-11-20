@@ -132,4 +132,4 @@ namespace eval MMergerCore {
     }
 }
 
-MMergerCore::init
+#MMergerCore::init
