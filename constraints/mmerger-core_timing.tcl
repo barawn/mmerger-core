@@ -119,7 +119,8 @@ namespace eval MMergerCore {
 	# We're going to use the magic clock functions, but
 	# we need to manually tag some of them because it's awkward to do it
 	# internally.
-	set hp_count_dsps [get_cells -hier -filter { name ~= "u_aurora/LANE[*].u_vwrap/u_dnpcie_aurora_core/u_core_wrapper/u_reset/u_hp_reset_counter/*u_counter" }]
+	set dspfilt "NAME =~ $corename/u_aurora/LANE[*].u_vwrap/u_dnpcie_aurora_core/u_core_wrapper/u_reset/u_hp_reset_counter/*u_counter"
+	set hp_count_dsps [get_cells -hier -filter $dspfilt]
 	foreach dsp $hp_count_dsps {
 	    set_property CUSTOM_CC_DST INITCLK $dsp
 	}
@@ -127,9 +128,9 @@ namespace eval MMergerCore {
 	# create clocktypes list
 	set clktypelist [array get clktypes]
 	
-	set_cc_paths $aurclk $xilclk
-	set_cc_paths $xilclk $initclk
+	set_cc_paths $aurclk $xilclk $clktypelist
+	set_cc_paths $xilclk $initclk $clktypelist
     }
 }
 
-#MMergerCore::init
+MMergerCore::init
